@@ -1,27 +1,22 @@
-import { useSyncExternalStore, useState, useCallback } from "react";
+import * as React from "react";
 import { useQueryClient } from "./ClientProvider";
 import { Observer } from "./observer";
 
 // TODO: Change type
-type Result = {};
+type Result = object;
 
-export function useQuery<TQueryKey = string>(url: TQueryKey): Result;
-
-export function useQuery(url: string) {
+export function useQuery<TResult extends object = Result>(url: string) {
   const client = useQueryClient();
 
-  const [observer] = useState(() => new Observer(client, url));
+  const [observer] = React.useState(() => new Observer<TResult>(client, url));
 
   const result = observer.getCurrentResult();
 
-  useSyncExternalStore(
-    useCallback(
-      (onStoreChange) => {
-        const unsubscribe = observer.subscribe(onStoreChange);
-        return unsubscribe;
-      },
-      [observer]
-    ),
+  React.useSyncExternalStore(
+    (onStoreChange) => {
+      const unsubscribe = observer.subscribe(onStoreChange);
+      return unsubscribe;
+    },
     () => observer.getCurrentResult(),
     () => observer.getCurrentResult()
   );

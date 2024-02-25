@@ -1,17 +1,14 @@
-import React, { useContext, createContext, useEffect, ReactNode } from "react";
+import * as React from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { Client } from "./client";
 
 export const QueryClientContext = createContext<Client | undefined>(undefined);
 
-export const useQueryClient = (queryClient?: Client) => {
+export const useQueryClient = () => {
   const client = useContext(QueryClientContext);
 
-  if (queryClient) {
-    return queryClient;
-  }
-
   if (!client) {
-    throw new Error("Provide proper client");
+    throw new Error("Provide query client");
   }
 
   return client;
@@ -25,11 +22,11 @@ export type QueryClientProviderProps = {
 export const QueryClientProvider = ({
   client,
   children,
-}: QueryClientProviderProps): JSX.Element => {
-  useEffect(() => {
-    client.mount();
-    return client.unmount;
-  }, [client]);
+}: QueryClientProviderProps) => {
+  // useEffect(() => {
+  //   client.mount();
+  //   return client.unmount;
+  // }, [client]);
 
   return (
     <QueryClientContext.Provider value={client}>
