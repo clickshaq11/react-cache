@@ -13,10 +13,7 @@ export function useQuery<TResult extends object = Result>(url: string) {
   const result = observer.getCurrentResult();
 
   React.useSyncExternalStore(
-    (onStoreChange) => {
-      const unsubscribe = observer.subscribe(onStoreChange);
-      return unsubscribe;
-    },
+    (onStoreChange) => observer.subscribe(onStoreChange),
     () => observer.getCurrentResult(),
     () => observer.getCurrentResult()
   );

@@ -13,7 +13,7 @@ const defaultOptions: ClientOptions = {
 
 export class Client {
   private readonly cache: Cache;
-  private readonly cacheTimeMs: number = 3 * 1000;
+  private readonly cacheTimeMs: number;
 
   constructor(options = defaultOptions) {
     const { cacheTimeMs, useLocalStorage } = options;
