@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useQueryClient } from "./ClientProvider";
 import { Observer } from "./observer";
 
@@ -8,11 +8,11 @@ type Result = object;
 export function useQuery<TResult extends object = Result>(url: string) {
   const client = useQueryClient();
 
-  const [observer] = React.useState(() => new Observer<TResult>(client, url));
+  const [observer] = useState(() => new Observer<TResult>(client, url));
 
   const result = observer.getCurrentResult();
 
-  React.useSyncExternalStore(
+  useSyncExternalStore(
     (onStoreChange) => observer.subscribe(onStoreChange),
     () => observer.getCurrentResult(),
     () => observer.getCurrentResult()

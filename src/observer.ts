@@ -18,6 +18,11 @@ export class Observer<TData extends object> {
     this.listeners = new Set();
     this.bindMethods();
 
+    if (this.client.getCache().has(url)) {
+      this.currentResult = this.client.getCache().get(url);
+      return;
+    }
+
     this.fetcher(url).then((data) => {
       this.updateResult(data);
     });
