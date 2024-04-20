@@ -1,6 +1,6 @@
 export class LocalStorageWrapper {
   has(hash: string) {
-    return localStorage.getItem(hash) === null;
+    return localStorage.getItem(hash) !== null;
   }
   set(hash: string, query: string) {
     localStorage.setItem(hash, query);
