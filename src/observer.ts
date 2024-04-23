@@ -4,13 +4,20 @@ import { isQueryTimeReached } from "./utils";
 
 type Listener = () => void;
 type State = "Loading" | "Failure" | "Success" | "Stale";
+type CurrentState<T> = {
+  data: T;
+  error: Error;
+  isError: boolean;
+  isSuccess: boolean;
+};
 
 export class Observer<TData extends object> {
   private listeners: Set<Listener>;
   private readonly url: string;
   private readonly client: Client;
-  private currentResult: TData = undefined!;
+  private currentResult: CurrentState<TData> = undefined!;
   private state: State = "Stale";
+  private error: Error = undefined!;
 
   constructor(client: Client, url: string) {
     this.client = client;
@@ -74,11 +81,19 @@ export class Observer<TData extends object> {
 
   protected onUnsubscribe() {}
 
+  protected buildResult(): CurrentState<TData> {
+    return {
+      data: this.client.getCache().get<Query<TData>>(this.url).data,
+      error: this.error,
+      isError: this.state === "Failure",
+      isSuccess: this.state === "Success",
+    };
+  }
+
   updateResult(data: TData) {
+    console.log(this.state);
     this.client.getCache().add(this.url, new Query(data));
-    this.currentResult = this.client
-      .getCache()
-      .get<Query<TData>>(this.url).data;
+    this.currentResult = this.buildResult();
     this.listeners.forEach((listener) => listener());
   }
 
@@ -88,11 +103,17 @@ export class Observer<TData extends object> {
 
     return promise
       .then((data) => {
+        if (data.status >= 400) {
+          throw new Error(
+            `Error while fetching url ${this.url}: ${this.error}`
+          );
+        }
         this.state = "Success";
         return data.json();
       })
-      .catch(() => {
+      .catch((err) => {
         this.state = "Failure";
+        this.error = err;
       });
   }
 
